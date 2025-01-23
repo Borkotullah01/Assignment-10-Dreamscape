@@ -17,6 +17,19 @@ const AddCraft = () => {
     
     const ItemInfo = {name, rating, category, customization, description, processing, price, stock, photo};
     console.log(ItemInfo);
+
+    fetch('http://localhost:3000/craft',{
+      method: "POST",
+      headers: {
+        "Content-Type" : "application/json"
+      },
+      body: JSON.stringify(ItemInfo)
+    })
+    .then(res=>res.json())
+    .then(data=>{
+      alert("data insert Hoise mama>>>")
+      console.log(data);
+    })
     
   }
 
