@@ -1,15 +1,16 @@
 import React from 'react';
 import Typed from 'typed.js';
 
-const TypedAnim = () => {
+const TypedAnim = ({data , cursorChar}) => {
   // Create reference to store the DOM element containing the animation
   const el = React.useRef(null);
 
   React.useEffect(() => {
     const typed = new Typed(el.current, {
-      strings: ['Dreamscape', 'Design'],
+      strings: data,
       typeSpeed: 50,
       loop: true,
+      cursorChar: cursorChar
     });
 
     return () => {

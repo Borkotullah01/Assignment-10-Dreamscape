@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import TypedAnim from './TypedAnim';
+import { AuthContext } from '../Providers/AuthProvider';
+import { FaPen } from 'react-icons/fa6';
+import { RiLogoutCircleRLine } from 'react-icons/ri';
+import Swal from 'sweetalert2';
 
 const Navbar = () => {
-
+  const [theme, setTheme] = useState(()=>localStorage.getItem('theme') || 'light')
+  const { user, LogOut } = useContext(AuthContext);
     const navLinks = <>
         <li><NavLink to={"/"}>Home</NavLink></li>
-        <li><NavLink to={"/addCraft"}>Add craft</NavLink></li>
-        <li><NavLink to={"/login"}>Login</NavLink></li>
-        <li><NavLink to={"/signup"}>Signup</NavLink></li>
+        <li><NavLink to={"/all-categories"}>Categories</NavLink></li>
+        <li><NavLink to={"/all-art-craft-item"}>Art & craft items</NavLink></li>
+        {
+          user && <>
+          <li><NavLink to={"/addCraft"}>Add Craft Item</NavLink></li>
+          <li><NavLink to={"/my-added-craft-list"}>My Art&Craft List</NavLink></li>
+          </>
+        }
     </>
-
-const [theme, setTheme] = useState(()=>localStorage.getItem('theme') || 'light')
 
 const handleTheme = e => {
   if (e.target.checked) {
@@ -20,6 +28,21 @@ const handleTheme = e => {
   else {
     setTheme('light')
   }
+}
+
+const handleLogOut = () => {
+  LogOut()
+  .then(()=>{
+    console.log("Sign-out successful.")
+    Swal.fire({
+      title: "Congratulation",
+      text: "Sign-out successful.",
+      icon: "success"
+    });
+  })
+  .catch((error)=>{
+    console.log(error.code)
+  })
 }
 
 
@@ -49,14 +72,14 @@ const handleTheme = e => {
               </div>
               <ul
                 tabIndex={0}
-                className="menu text-[#fcfcfc] menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                className="menu bg-white text-black font-poppins menu-sm dropdown-content rounded-box z-[1] mt-3 w-52 p-2 shadow">
                     {navLinks}
               </ul>
             </div>
-            <a className='text-xl md:text-2xl lg:text-3xl text-[#fcfcfc] font-rancho'><TypedAnim/></a>
+            <a className='text-xl md:text-2xl lg:text-3xl text-[#fcfcfc] font-rancho'><TypedAnim cursorChar={"|"} data={['Dreamscape', 'Design']} /></a>
           </div>
           <div className="navbar-center hidden lg:flex">
-            <ul className="menu text-[#fcfcfc] menu-horizontal px-1">
+            <ul className="menu text-white menu-horizontal px-1">
                 {navLinks}
             </ul>
           </div>
@@ -84,27 +107,33 @@ const handleTheme = e => {
               </svg>
             </label>
             {/* Avater start */}
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                <div className="w-8 md:w-10 rounded-full">
-                  <img
-                    alt="Tailwind CSS Navbar component"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                </div>
-              </div>
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                <li>
-                  <a className="justify-between">
-                    Profile
-                    <span className="badge">New</span>
-                  </a>
-                </li>
-                <li><a>Settings</a></li>
-                <li><a>Logout</a></li>
-              </ul>
-            </div>
+            {
+              user ? <div className="dropdown dropdown-end">
+                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                          <div className="w-8 md:w-10 rounded-full">
+                            <img
+                              alt="Tailwind CSS Navbar component"
+                              src={user?.photoURL} />
+                          </div>
+                        </div>
+                        <ul
+                          tabIndex={0}
+                          className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+                          <li>
+                            <Link to={"/user-profile"} className="">
+                            <FaPen /> Profile
+                              <span className="badge">New</span>
+                            </Link>
+                          </li>
+                          <li><a onClick={handleLogOut}>
+                          <RiLogoutCircleRLine />  Logout</a></li>
+                        </ul>
+                      </div> :
+                      <>
+                        <NavLink className="bg-[#f73e69] hover:bg-[#F05A7E] btn btn-sm md:btn-md text-white font-semibold font-poppins" to={"/login"}>Login</NavLink>
+                        <NavLink className="bg-[#f73e69] hover:bg-[#F05A7E] btn btn-sm md:btn-md text-white font-semibold font-poppins" to={"/registration"}>Register</NavLink>
+                      </>
+            }
             {/* Avater end */}
           </div>
         </div>

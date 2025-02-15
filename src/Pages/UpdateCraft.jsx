@@ -1,49 +1,64 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { AuthContext } from '../Providers/AuthProvider';
 import Swal from 'sweetalert2';
 
-const AddCraft = () => {
 
-  const { user } = useContext(AuthContext)
-  console.log(user)
+const UpdateCraft = () => {
 
-  const handleAddItem = (e) => {
-    e.preventDefault();
-    const Form = e.target;
-    const name = Form.name.value;
-    const rating = Form.rating.value;
-    const category = Form.category.value;
-    const customization = Form.customization.value;
-    const description = Form.description.value;
-    const processing = Form.processing.value;
-    const price = Form.price.value;
-    const stock = Form.stock.value;
-    const photo = Form.photo.value;
-    const posted_by = user?.displayName;
-    const posted_at = user?.metadata?.creationTime;
-    const email = user?.email;
+    const [CraftItem, setCraftItem] = useState([])
+    const location = useLocation();
+    const { user } = useContext(AuthContext)
+
+    useEffect(()=>{
+        fetch(`http://localhost:3000/details/${location.state}`)
+        .then(res=>res.json())
+        .then(data=>{
+          console.log(data)
+            setCraftItem(data)
+        })
+    },[])
+
+    const { name, photo, description, price, category, rating, customization, processing, stock, _id } = CraftItem;
+    console.log(_id)
+
+    const handleUpdate = (e) => {
+      e.preventDefault();
+      const Form = e.target;
+      const name = Form.name.value;
+      const rating = Form.rating.value;
+      const category = Form.category.value;
+      const customization = Form.customization.value;
+      const description = Form.description.value;
+      const processing = Form.processing.value;
+      const price = Form.price.value;
+      const stock = Form.stock.value;
+      const photo = Form.photo.value;
+      const posted_by = user?.displayName;
+      const posted_at = user?.metadata?.creationTime;
+      const email = user?.email;
+      const updateInfo = { _id, name, photo, description, price, category, rating, customization, processing, stock, posted_by, posted_at, email };
+      // const updateInfo = { _id };
+
+      fetch('http://localhost:3000/craft',{ 
+        method: "PUT",
+        headers: {
+          "Content-Type" : "application/json"
+        },
+        body: JSON.stringify(updateInfo)
+      })
+      .then(res=>res.json())
+      .then(data=>{
+        Swal.fire({
+          title: "Congratulation",
+          text: "Successfully Updated this craft item.",
+          icon: "success",
+        });
+        Form.reset();
+      })
+    }
 
     
-    const ItemInfo = {name, photo, description, price, category, rating, customization, processing, stock, posted_by, posted_at, email };
-
-
-    fetch('http://localhost:3000/craft',{
-      method: "POST",
-      headers: {
-        "Content-Type" : "application/json"
-      },
-      body: JSON.stringify(ItemInfo)
-    })
-    .then(res=>res.json())
-    .then(data=>{
-      Swal.fire({
-        title: "Congratulation",
-        text: "Successfully added this craft item.",
-        icon: "success",
-      });
-      Form.reset();
-    })
-  }
 
   return (
     <div 
@@ -52,20 +67,20 @@ const AddCraft = () => {
     }}
     className="p-4 bg-cover bg-center]">
       <div className="max-w-7xl bg-gradient-to-tr from-[#ffffffb9] to-[#ffffffc1] p-8 md:p-16 lg:p-24 mx-auto border rounded-lg border-[#F05A7E]">
-        <h1 className='text-center pb-10 text-5xl font-rancho text-[#F05A7E]'>Add new Craft item</h1>
-        <form onSubmit={handleAddItem} className='space-y-6'>
+        <h1 className='text-center pb-10 text-5xl font-rancho text-[#F05A7E]'>Update Craft item</h1>
+        <form onSubmit={handleUpdate} className='space-y-6'>
         <div className="flex flex-col md:flex-row gap-8 w-full">
           <div className="form-control w-full font-poppins">
             <label className="label">
               <span className="text-xl">Item name</span>
             </label>
-            <input type="text" name='name' placeholder="Enter your item name" className="input input-bordered w-full" />
+            <input type="text" name='name' placeholder={name} className="input input-bordered w-full" />
           </div>
           <div className="form-control w-full font-poppins">
             <label className="label">
               <span className="text-xl">Rating</span>
             </label>
-            <input type="text" name='rating' placeholder="Enter item rating" className="input input-bordered w-full" />
+            <input type="text" name='rating' placeholder={rating} className="input input-bordered w-full" />
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-8 w-full">
@@ -75,12 +90,12 @@ const AddCraft = () => {
             </label>
             <select name='category' className="select select-bordered w-full">
               <option disabled selected>Choose Category</option>
-              <option>Landscape Painting</option>
-              <option>Portrait Drawing</option>
-              <option>Watercolour Painting</option>
-              <option>Oil Painting</option>
-              <option>Charcoal Sketching</option>
-              <option>Cartoon Drawing</option>
+              <option >Landscape Painting</option>
+              <option >Portrait Drawing</option>
+              <option >Watercolour Painting</option>
+              <option >Oil Painting</option>
+              <option >Charcoal Sketching</option>
+              <option >Cartoon Drawing</option>
             </select>
           </div>
           <div className="form-control w-full font-poppins">
@@ -99,7 +114,7 @@ const AddCraft = () => {
             <label className="label">
               <span className="text-xl">Description</span>
             </label>
-            <input type="text" name='description' placeholder="Enter Item description" className="input input-bordered w-full" />
+            <input type="text" name='description' placeholder={description} className="input input-bordered w-full" />
           </div>
           <div className="form-control w-full font-poppins">
             <label className="label">
@@ -120,7 +135,7 @@ const AddCraft = () => {
             <label className="label">
               <span className="text-xl">Price</span>
             </label>
-            <input type="number" name='price' placeholder="Enter Item Price" className="input input-bordered w-full" />
+            <input type="number" name='price' placeholder={price} className="input input-bordered w-full" />
           </div>
           <div className="form-control w-full font-poppins">
             <label className="label">
@@ -137,7 +152,7 @@ const AddCraft = () => {
             <label className="label">
               <span className="text-xl">Item Photo URL</span>
             </label>
-            <input type="text" name='photo' placeholder="Enter Photo URL" className="input input-bordered w-full" />
+            <input type="text" name='photo' placeholder={photo} defaultValue={photo} className="input input-bordered w-full" />
           </div>
           <div className="">
           <button className="mt-6 text-white text-lg btn btn-block bg-[#F05A7E] hover:bg-[#fa7191]">Add Item</button>
@@ -145,7 +160,7 @@ const AddCraft = () => {
         </form>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AddCraft;
+export default UpdateCraft
